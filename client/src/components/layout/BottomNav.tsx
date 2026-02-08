@@ -1,15 +1,17 @@
-import { Home, Package, FileText, Settings, Plus, ScanLine } from "lucide-react";
+import { Home, Package, FileText, Settings } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 export function BottomNav() {
   const [location] = useLocation();
+  const { t } = useI18n();
 
   const navItems = [
-    { icon: Home, label: "Home", href: "/" },
-    { icon: Package, label: "Products", href: "/products" },
-    { icon: FileText, label: "Documents", href: "/documents" },
-    { icon: Settings, label: "Settings", href: "/settings" },
+    { icon: Home, label: t("nav.home"), href: "/" },
+    { icon: Package, label: t("nav.products"), href: "/products" },
+    { icon: FileText, label: t("nav.documents"), href: "/documents" },
+    { icon: Settings, label: t("nav.settings"), href: "/settings" },
   ];
 
   return (
@@ -18,7 +20,7 @@ export function BottomNav() {
         {navItems.map((item) => {
           const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href));
           return (
-            <Link key={item.label} href={item.href}>
+            <Link key={item.href} href={item.href}>
               <div
                 className={cn(
                   "flex flex-col items-center justify-center w-16 h-full space-y-1 transition-colors duration-200 cursor-pointer",

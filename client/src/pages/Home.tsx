@@ -5,8 +5,10 @@ import { Plus, ScanLine, ShieldAlert } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ProductCard } from "@/components/ui/product-card";
 import { Link } from "wouter";
+import { useI18n } from "@/lib/i18n";
 
 export default function Home() {
+  const { t, language } = useI18n();
   const expiringProducts = MOCK_PRODUCTS.filter(p => p.status === 'expiring' || p.status === 'eligible');
   const recentProducts = MOCK_PRODUCTS.slice(0, 3);
 
@@ -17,10 +19,10 @@ export default function Home() {
         <div className="flex justify-between items-start pt-4 animate-in fade-in slide-in-from-top-4 duration-700">
           <div>
             <h1 className="text-3xl font-display font-bold tracking-tight text-slate-900">
-              Hello, {MOCK_USER.name.split(' ')[0]}
+              {t("home.hello", { name: MOCK_USER.name.split(' ')[0] })}
             </h1>
             <p className="text-slate-500 mt-1">
-              You have <span className="font-semibold text-slate-900">{MOCK_PRODUCTS.length} products</span> in your profile.
+              {t("home.products_count", { count: MOCK_PRODUCTS.length })}
             </p>
           </div>
         </div>
@@ -28,7 +30,7 @@ export default function Home() {
         {/* Alerts Section - Conditional */}
         {expiringProducts.length > 0 && (
           <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Attention Needed</h2>
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t("home.attention_needed")}</h2>
             {expiringProducts.map(product => (
               <Link key={product.id} href={`/product/${product.id}`}>
                 <Card className="p-4 border-amber-200 bg-amber-50/50 hover:bg-amber-50 transition-colors cursor-pointer group">
@@ -37,9 +39,9 @@ export default function Home() {
                       <ShieldAlert className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-amber-900">Protection Action Needed</h3>
+                      <h3 className="font-medium text-amber-900">{t("home.protection_action")}</h3>
                       <p className="text-sm text-amber-700/80 mt-1">
-                        {product.name} is {product.status === 'eligible' ? 'eligible for protection' : 'expiring soon'}.
+                        {product.name} - {product.status === 'eligible' ? t("home.eligible_for_protection") : t("home.expiring_soon")}.
                       </p>
                     </div>
                   </div>
@@ -56,7 +58,7 @@ export default function Home() {
               <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                 <Plus className="w-5 h-5 text-slate-600 group-hover:text-primary" />
               </div>
-              <span className="font-medium text-slate-700 group-hover:text-primary">Add Product</span>
+              <span className="font-medium text-slate-700 group-hover:text-primary">{t("home.add_product")}</span>
             </Button>
           </Link>
           
@@ -65,7 +67,7 @@ export default function Home() {
               <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                 <ScanLine className="w-5 h-5 text-slate-600 group-hover:text-primary" />
               </div>
-              <span className="font-medium text-slate-700 group-hover:text-primary">Scan Invoice</span>
+              <span className="font-medium text-slate-700 group-hover:text-primary">{t("home.scan_invoice")}</span>
             </Button>
           </Link>
         </div>
@@ -73,8 +75,8 @@ export default function Home() {
         {/* Recent Products */}
         <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-display font-semibold">Recent Products</h2>
-            <Link href="/products" className="text-sm text-primary font-medium hover:underline">View All</Link>
+            <h2 className="text-lg font-display font-semibold">{t("home.recent_products")}</h2>
+            <Link href="/products" className="text-sm text-primary font-medium hover:underline">{t("home.view_all")}</Link>
           </div>
           <div className="space-y-3">
             {recentProducts.map(product => (

@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { ShieldCheck, ShieldAlert, ShieldX, Clock } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export type StatusType = "active" | "expiring" | "expired" | "unprotected" | "eligible";
 
@@ -10,6 +11,8 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status, className, showIcon = true }: StatusBadgeProps) {
+  const { t, language } = useI18n();
+
   const styles = {
     active: "bg-emerald-100 text-emerald-700 border-emerald-200",
     expiring: "bg-amber-100 text-amber-700 border-amber-200",
@@ -19,11 +22,11 @@ export function StatusBadge({ status, className, showIcon = true }: StatusBadgeP
   };
 
   const labels = {
-    active: "Protected",
-    expiring: "Expiring Soon",
-    expired: "Expired",
-    unprotected: "No Protection",
-    eligible: "Protection Available",
+    active: t("status.active"),
+    expiring: t("status.expiring"),
+    expired: t("status.expired"),
+    unprotected: t("status.unprotected"),
+    eligible: t("status.eligible"),
   };
 
   const Icons = {
@@ -44,7 +47,7 @@ export function StatusBadge({ status, className, showIcon = true }: StatusBadgeP
         className
       )}
     >
-      {showIcon && <Icon className="w-3 h-3 mr-1" />}
+      {showIcon && <Icon className={cn("w-3 h-3", language === 'ar' ? "ml-1" : "mr-1")} />}
       {labels[status]}
     </div>
   );

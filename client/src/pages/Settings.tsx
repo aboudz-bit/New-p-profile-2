@@ -3,9 +3,18 @@ import { MOCK_USER } from "@/lib/mockData";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Bell, Globe, Lock, ChevronRight, LogOut, Shield } from "lucide-react";
+import { Bell, Globe, Lock, ChevronRight, LogOut, Shield, ChevronLeft } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 export default function Settings() {
+  const { language, setLanguage, t } = useI18n();
+  const ChevronIcon = language === 'ar' ? ChevronLeft : ChevronRight;
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'ar' : 'en');
+  };
+
   return (
     <MobileLayout>
       <div className="pb-24">
@@ -19,7 +28,7 @@ export default function Settings() {
             <div>
               <h1 className="text-xl font-display font-bold">{MOCK_USER.name}</h1>
               <p className="text-sm text-muted-foreground">{MOCK_USER.email}</p>
-              <p className="text-xs text-slate-400 mt-1">Member since {MOCK_USER.memberSince}</p>
+              <p className="text-xs text-slate-400 mt-1">{t("settings.member_since", { date: MOCK_USER.memberSince })}</p>
             </div>
           </div>
         </div>
@@ -27,16 +36,16 @@ export default function Settings() {
         <div className="p-6 space-y-8">
           {/* Notifications */}
           <section className="space-y-4">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Notifications</h2>
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t("settings.notifications")}</h2>
             
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
                     <Bell className="w-4 h-4 text-slate-500" />
-                    <span className="font-medium text-sm">Warranty Expiry</span>
+                    <span className="font-medium text-sm">{t("settings.warranty_expiry")}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground pl-6">Get notified 30 days before expiry</p>
+                  <p className="text-xs text-muted-foreground px-6">{t("settings.warranty_expiry_desc")}</p>
                 </div>
                 <Switch defaultChecked />
               </div>
@@ -45,9 +54,9 @@ export default function Settings() {
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
                     <Shield className="w-4 h-4 text-slate-500" />
-                    <span className="font-medium text-sm">Protection Offers</span>
+                    <span className="font-medium text-sm">{t("settings.protection_offers")}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground pl-6">Relevant protection plans for your products</p>
+                  <p className="text-xs text-muted-foreground px-6">{t("settings.protection_offers_desc")}</p>
                 </div>
                 <Switch defaultChecked />
               </div>
@@ -56,31 +65,34 @@ export default function Settings() {
 
           {/* Preferences */}
           <section className="space-y-4">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Preferences</h2>
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t("settings.preferences")}</h2>
             
-            <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors">
+            <button 
+              className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors"
+              onClick={toggleLanguage}
+            >
               <div className="flex items-center gap-3">
                 <Globe className="w-5 h-5 text-slate-500" />
-                <span className="font-medium">Language</span>
+                <span className="font-medium">{t("settings.language")}</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                English
-                <ChevronRight className="w-4 h-4" />
+                {language === 'en' ? 'English' : 'العربية'}
+                <ChevronIcon className="w-4 h-4" />
               </div>
             </button>
 
             <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors">
               <div className="flex items-center gap-3">
                 <Lock className="w-5 h-5 text-slate-500" />
-                <span className="font-medium">Privacy & Security</span>
+                <span className="font-medium">{t("settings.privacy")}</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <ChevronIcon className="w-4 h-4 text-muted-foreground" />
             </button>
           </section>
           
           <Button variant="outline" className="w-full text-destructive hover:text-destructive hover:bg-destructive/5 border-destructive/20">
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
+            <LogOut className={cn("w-4 h-4", language === 'ar' ? "ml-2" : "mr-2")} />
+            {t("settings.sign_out")}
           </Button>
 
           <div className="text-center text-xs text-slate-300 pt-8">

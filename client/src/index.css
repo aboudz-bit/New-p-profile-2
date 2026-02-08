@@ -43,8 +43,8 @@
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
   
-  --font-sans: 'Inter', sans-serif;
-  --font-display: 'Space Grotesk', sans-serif;
+  --font-sans: 'Inter', 'IBM Plex Sans Arabic', sans-serif;
+  --font-display: 'Space Grotesk', 'IBM Plex Sans Arabic', sans-serif;
   
   --radius: 0.75rem;
 }

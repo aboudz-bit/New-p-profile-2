@@ -4,12 +4,15 @@ import { Card } from "@/components/ui/card";
 import { FileText, Download, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/lib/i18n";
 
 export default function Documents() {
+  const { t } = useI18n();
+
   return (
     <MobileLayout>
       <div className="p-6 space-y-6 pb-24">
-        <h1 className="text-2xl font-display font-bold">Documents</h1>
+        <h1 className="text-2xl font-display font-bold">{t("documents.title")}</h1>
 
         <div className="space-y-4">
           {MOCK_INVOICES.map(invoice => (
@@ -26,7 +29,7 @@ export default function Documents() {
                     <span>{invoice.currency} {invoice.total.toFixed(2)}</span>
                   </div>
                   <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 mt-1 inline-block">
-                    {invoice.itemsCount} products linked
+                    {t("documents.products_linked", { count: invoice.itemsCount })}
                   </span>
                 </div>
               </div>

@@ -5,10 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 export default function Products() {
   const [filter, setFilter] = useState<'all' | 'protected' | 'attention'>('all');
   const [search, setSearch] = useState('');
+  const { t, language } = useI18n();
 
   const filteredProducts = MOCK_PRODUCTS.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.brand.toLowerCase().includes(search.toLowerCase());
@@ -23,14 +26,14 @@ export default function Products() {
     <MobileLayout>
       <div className="flex flex-col h-full min-h-screen">
         <div className="p-6 pb-2 sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b">
-          <h1 className="text-2xl font-display font-bold mb-4">My Products</h1>
+          <h1 className="text-2xl font-display font-bold mb-4">{t("products.title")}</h1>
           
           <div className="flex gap-2 mb-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className={cn("absolute top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground", language === 'ar' ? "right-3" : "left-3")} />
               <Input 
-                placeholder="Search products..." 
-                className="pl-9 bg-slate-50 border-none shadow-none focus-visible:ring-1"
+                placeholder={t("products.search_placeholder")}
+                className={cn("bg-slate-50 border-none shadow-none focus-visible:ring-1", language === 'ar' ? "pr-9 pl-3" : "pl-9 pr-3")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -47,7 +50,7 @@ export default function Products() {
               onClick={() => setFilter('all')}
               className="rounded-full text-xs h-8"
             >
-              All Products
+              {t("products.filter.all")}
             </Button>
             <Button 
               variant={filter === 'protected' ? "default" : "outline"} 
@@ -55,7 +58,7 @@ export default function Products() {
               onClick={() => setFilter('protected')}
               className="rounded-full text-xs h-8"
             >
-              Protected
+              {t("products.filter.protected")}
             </Button>
             <Button 
               variant={filter === 'attention' ? "default" : "outline"} 
@@ -63,7 +66,7 @@ export default function Products() {
               onClick={() => setFilter('attention')}
               className="rounded-full text-xs h-8"
             >
-              Needs Attention
+              {t("products.filter.attention")}
             </Button>
           </div>
         </div>
@@ -78,8 +81,8 @@ export default function Products() {
               <div className="bg-slate-100 p-4 rounded-full mb-4">
                 <Search className="w-8 h-8 text-slate-400" />
               </div>
-              <p className="text-lg font-medium text-slate-900">No products found</p>
-              <p className="text-sm text-slate-500">Try adjusting your search or filters</p>
+              <p className="text-lg font-medium text-slate-900">{t("products.empty.title")}</p>
+              <p className="text-sm text-slate-500">{t("products.empty.subtitle")}</p>
             </div>
           )}
         </div>
