@@ -1,5 +1,5 @@
-// Simulation of OCR and Text Processing Logic
-// In a real app, this would happen on the server or via a dedicated OCR library (Tesseract.js, Google Cloud Vision, etc.)
+// OCR Service using Real Backend Proxy
+import axios from "axios";
 
 export interface ExtractedProduct {
   id: number;
@@ -22,89 +22,63 @@ export interface ExtractionResult {
   confidence: number;
 }
 
-// Simulated raw text from a Saudi invoice (e.g., eXtra)
-const EXTRA_INVOICE_TEXT = `
-eXtra
-United Electronics Co.
-VAT No: 300057034600003
-Invoice No: 1045293842
-Date: 12/01/2024 Time: 18:30
-Store: Riyadh - Olaya
-
-----------------------------------------
-Item Code      Description       Qty    Unit Price    Gross Amount
-----------------------------------------
-100348291      iPhone 15 Pro     1      4,699.00      4,699.00 SR
-               Max 256GB Blue
-               Warranty: 24 Months
-               
-200192834      Apple 20W USB-C   1      99.00         99.00 SR
-               Power Adapter
-               
-Terms & Conditions:
-1. Goods can be returned within 7 days.
-2. Original invoice required.
-3. Box must be unopened.
-Visit www.extra.com for full policy.
-Customer Service: 920004123
-----------------------------------------
-Total (Inc VAT):                 4,798.00 SR
-VAT (15%):                       625.82 SR
-Net Amount:                      4,172.18 SR
-----------------------------------------
-Paid by: Mada ending 1234
-Thank you for shopping at eXtra
-`;
-
-const NOISY_INVOICE_TEXT = `
-Riyadh Supermarket
-Date: 10/10/2023
-Items:
-Milk - 10 SR
-Bread - 5 SR
-Total: 15 SR
-...
-(Low quality scan, noise, blurry text)
-`;
-
-export const simulateOCR = async (file: File): Promise<ExtractionResult> => {
-  // Simulate processing delay
-  await new Promise(resolve => setTimeout(resolve, 2000));
-
-  // Determine if we should simulate a successful high-quality scan or a failed/noisy one
-  // For demo purposes, we can toggle this based on file name or random, 
-  // but let's default to success for the "Happy Path" and have a fallback trigger available.
-  
-  // Logic: Real text extraction would happen here.
-  // We will simulate "Text Cleaning" and "Product Detection" on the mock text.
-  
-  const rawText = EXTRA_INVOICE_TEXT;
-  
-  const cleanedText = cleanText(rawText);
-  const products = detectProducts(cleanedText);
-  
-  const merchant = "eXtra"; // Inferred from header
-  const date = "2024-01-12"; // Inferred
-  const total = 4798.00; // Inferred
-
-  return {
-    merchant,
-    date,
-    total,
-    currency: "SR",
-    products,
-    rawText,
-    confidence: products.length > 0 ? 0.9 : 0.2
-  };
+// Convert File to Base64
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
 };
 
+export const simulateOCR = async (file: File): Promise<ExtractionResult> => {
+  try {
+    const base64Image = await fileToBase64(file);
+    
+    // Call our secure backend proxy
+    const response = await axios.post("/api/ocr", { image: base64Image });
+    const rawText = response.data.text;
+
+    if (!rawText) {
+      throw new Error("No text detected");
+    }
+
+    const cleanedText = cleanText(rawText);
+    const products = detectProducts(cleanedText);
+    
+    // Attempt to parse metadata (simple heuristics)
+    const merchant = parseMerchant(rawText);
+    const date = parseDate(rawText);
+    const total = parseTotal(rawText);
+
+    return {
+      merchant,
+      date,
+      total,
+      currency: "SR",
+      products,
+      rawText,
+      confidence: products.length > 0 ? 0.8 : 0.1
+    };
+  } catch (error) {
+    console.error("OCR Service Error:", error);
+    // Return empty result to trigger fallback UI
+    return {
+      products: [],
+      rawText: "",
+      confidence: 0
+    };
+  }
+};
+
+// --- Parsing Helpers ---
+
 // 2. TEXT CLEANING
-// Remove sections containing T&C, Privacy, Returns, etc.
 const cleanText = (text: string): string => {
   const lines = text.split('\n');
   const cleanLines = lines.filter(line => {
     const lower = line.toLowerCase();
-    // Filter out common policy and footer noise
     if (lower.includes('terms & conditions')) return false;
     if (lower.includes('return policy')) return false;
     if (lower.includes('privacy policy')) return false;
@@ -125,16 +99,14 @@ const detectProducts = (text: string): ExtractedProduct[] => {
   
   let currentProduct: Partial<ExtractedProduct> | null = null;
   
-  // Regex to identify line items (Simplified for simulation)
-  // Looks for: ItemCode (digits) ... Price (digits.digits) ... Currency (SR/SAR)
-  // This is a heuristic.
-  const itemLineRegex = /^(\d{6,12})\s+(.+?)\s+(\d+)\s+([\d,]+\.\d{2})/;
+  // Matches: ItemCode (6-12 digits) ... Price (digits.digits) ... Currency (SR/SAR optional)
+  // Heuristic optimized for eXtra/Saudi invoices
+  const itemLineRegex = /^(\d{6,14})\s+(.+?)\s+(\d+)\s+([\d,]+\.\d{2})/;
   
   for (const line of lines) {
     const match = line.trim().match(itemLineRegex);
     
     if (match) {
-      // Found a new product line
       if (currentProduct && currentProduct.name) {
         products.push(cleanProductData(currentProduct as ExtractedProduct));
       }
@@ -142,23 +114,20 @@ const detectProducts = (text: string): ExtractedProduct[] => {
       const priceStr = match[4].replace(/,/g, '');
       
       currentProduct = {
-        id: Math.random(), // Temp ID
+        id: Math.random(),
         sku: match[1],
-        name: match[2].trim(), // Initial name capture
+        name: match[2].trim(),
         price: parseFloat(priceStr),
-        category: "Electronics", // Default inference
+        category: "Electronics",
         selected: true,
       };
     } else if (currentProduct) {
-      // Check if this is a continuation line (description wrapping)
-      // Continuation lines usually have indentation or lack numerical structure of a new item
+      // Continuation lines
       const isContinuation = line.trim().length > 0 && !line.includes('SR') && !line.match(/^\d/);
       
       if (isContinuation) {
-        // Append to description if it doesn't look like a footer/total line
         if (!line.toLowerCase().includes('total') && !line.toLowerCase().includes('vat')) {
              const trimmedLine = line.trim();
-             // Heuristic: If line contains warranty keywords, treat as warranty info, not name
              if (containsWarrantyInfo(trimmedLine)) {
                  currentProduct.warrantyRaw = trimmedLine;
              } else if (currentProduct.name) {
@@ -166,7 +135,6 @@ const detectProducts = (text: string): ExtractedProduct[] => {
              }
         }
       } else if (line.trim() === '' || line.includes('------')) {
-        // End of product block
         if (currentProduct && currentProduct.name) {
            products.push(cleanProductData(currentProduct as ExtractedProduct));
            currentProduct = null;
@@ -175,7 +143,6 @@ const detectProducts = (text: string): ExtractedProduct[] => {
     }
   }
 
-  // Push last product if exists
   if (currentProduct?.name) {
     products.push(cleanProductData(currentProduct as ExtractedProduct));
   }
@@ -200,8 +167,6 @@ const containsWarrantyInfo = (str: string): boolean => {
 const cleanProductData = (product: ExtractedProduct): ExtractedProduct => {
     let name = product.name;
     
-    // If name contains warranty info inline (not on separate line), try to split it
-    // Regex for common warranty patterns at end of string
     const warrantyRegex = /\s*(?:Warranty|ضمان|Cover|Duration)[:\s]+.*/i;
     const match = name.match(warrantyRegex);
     if (match) {
@@ -209,14 +174,35 @@ const cleanProductData = (product: ExtractedProduct): ExtractedProduct => {
         name = name.replace(warrantyRegex, '');
     }
 
-    // Explicit cleanup of keywords if they persist
     name = name.replace(/\b(Warranty|Months|Years|Year|Month|ضمان)\b/gi, '').trim();
-    
-    // Remove extra spaces
     name = name.replace(/\s+/g, ' ').trim();
     
     return {
         ...product,
         name
     };
+};
+
+// --- Basic Metadata Parsers ---
+
+const parseMerchant = (text: string): string => {
+  const lower = text.toLowerCase();
+  if (lower.includes('extra') || lower.includes('united electronics')) return 'eXtra';
+  if (lower.includes('jarir')) return 'Jarir Bookstore';
+  if (lower.includes('amazon')) return 'Amazon';
+  if (lower.includes('noon')) return 'Noon';
+  return 'Unknown Merchant';
+};
+
+const parseDate = (text: string): string => {
+  const dateRegex = /(\d{2}[\/\-]\d{2}[\/\-]\d{4})/;
+  const match = text.match(dateRegex);
+  return match ? match[1] : new Date().toLocaleDateString();
+};
+
+const parseTotal = (text: string): number => {
+  // Look for "Total" followed by number
+  const totalRegex = /Total.*?\s+([\d,]+\.\d{2})/i;
+  const match = text.match(totalRegex);
+  return match ? parseFloat(match[1].replace(/,/g, '')) : 0;
 };
