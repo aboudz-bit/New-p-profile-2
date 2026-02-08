@@ -4,16 +4,16 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Camera, Check, ChevronRight, Loader2, ScanLine, X, FileText, PenTool } from "lucide-react";
+import { Camera, Check, ChevronRight, Loader2, ScanLine, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 
-type Step = 'choose' | 'scan' | 'manual' | 'review' | 'confirm';
+type Step = 'scan' | 'review' | 'confirm';
 
 export default function AddProduct() {
-  const [step, setStep] = useState<Step>('choose');
+  const [step, setStep] = useState<Step>('scan');
   const [scanning, setScanning] = useState(false);
   const [, setLocation] = useLocation();
   const { t, language } = useI18n();
@@ -52,14 +52,11 @@ export default function AddProduct() {
       <div className="flex flex-col h-screen bg-background">
         {/* Header */}
         <div className="p-4 border-b flex items-center justify-between bg-white z-10">
-          <Button variant="ghost" size="sm" onClick={() => step === 'choose' ? setLocation('/') : setStep('choose')}>
+          <Button variant="ghost" size="sm" onClick={() => step === 'scan' ? setLocation('/') : setStep('scan')}>
             {t("add_product.cancel")}
           </Button>
           <span className="font-semibold text-sm">
-            {step === 'choose' ? t("add_product.choose_method") :
-             step === 'scan' ? t("add_product.scan_invoice") :
-             step === 'manual' ? t("add_product.method_manual") :
-             step === 'review' ? t("add_product.review_items") : t("add_product.saved")}
+            {step === 'scan' ? t("add_product.scan_invoice") : step === 'review' ? t("add_product.review_items") : t("add_product.saved")}
           </span>
           <div className="w-10" /> {/* Spacer */}
         </div>
@@ -67,60 +64,9 @@ export default function AddProduct() {
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           
-          {/* STEP 0: CHOOSE METHOD */}
-          {step === 'choose' && (
-            <div className="p-6 space-y-6 pt-12 animate-in slide-in-from-bottom-4 duration-500">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-display font-bold mb-2">{t("add_product.choose_method")}</h2>
-              </div>
-
-              <div className="grid gap-4">
-                {/* Option 1: Scan */}
-                <button 
-                  onClick={() => setStep('scan')}
-                  className="w-full text-left bg-white p-6 rounded-2xl border-2 border-slate-100 hover:border-primary/20 hover:bg-slate-50 transition-all shadow-sm group"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                      <Camera className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg text-slate-900 mb-1 group-hover:text-primary transition-colors">
-                        {t("add_product.method_scan")}
-                      </h3>
-                      <p className="text-sm text-slate-500 leading-relaxed">
-                        {t("add_product.method_scan_desc")}
-                      </p>
-                    </div>
-                  </div>
-                </button>
-
-                {/* Option 2: Manual */}
-                <button 
-                  onClick={() => setStep('manual')}
-                  className="w-full text-left bg-white p-6 rounded-2xl border-2 border-slate-100 hover:border-primary/20 hover:bg-slate-50 transition-all shadow-sm group"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                      <PenTool className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg text-slate-900 mb-1 group-hover:text-primary transition-colors">
-                        {t("add_product.method_manual")}
-                      </h3>
-                      <p className="text-sm text-slate-500 leading-relaxed">
-                        {t("add_product.method_manual_desc")}
-                      </p>
-                    </div>
-                  </div>
-                </button>
-              </div>
-            </div>
-          )}
-
           {/* STEP 1: SCAN */}
           {step === 'scan' && (
-            <div className="flex flex-col items-center justify-center h-full p-8 space-y-8 animate-in fade-in duration-300">
+            <div className="flex flex-col items-center justify-center h-full p-8 space-y-8">
               <div className="relative w-64 h-80 bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-800 flex items-center justify-center">
                 {scanning ? (
                   <>
@@ -154,41 +100,9 @@ export default function AddProduct() {
             </div>
           )}
 
-          {/* STEP: MANUAL FORM */}
-          {step === 'manual' && (
-            <div className="p-6 space-y-6 animate-in slide-in-from-right-4 duration-300">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="product-name">{t("add_product.product_name")}</Label>
-                  <Input id="product-name" placeholder="e.g. iPhone 15 Pro" className="h-12" />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="category">{t("add_product.category")}</Label>
-                  <Input id="category" placeholder="e.g. Electronics" className="h-12" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Manufacturer (Optional)</Label>
-                  <Input placeholder="e.g. Apple" className="h-12" />
-                </div>
-                
-                <div className="pt-4">
-                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100">
-                    <div className="space-y-0.5">
-                      <Label className="text-base">Manufacturer Warranty</Label>
-                      <p className="text-xs text-muted-foreground">Does this product have active warranty?</p>
-                    </div>
-                    <Switch />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* STEP 2: REVIEW */}
           {step === 'review' && (
-            <div className="p-6 space-y-6 animate-in fade-in duration-300">
+            <div className="p-6 space-y-6">
               <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium">Best Buy #2910</p>
@@ -245,14 +159,6 @@ export default function AddProduct() {
         </div>
 
         {/* Footer Actions */}
-        {step === 'manual' && (
-          <div className="p-4 border-t bg-white safe-area-pb animate-in slide-in-from-bottom-4 duration-300">
-            <Button className="w-full h-12 text-base shadow-lg shadow-primary/20" onClick={handleSave}>
-              Save Product
-            </Button>
-          </div>
-        )}
-
         {step === 'review' && (
           <div className="p-4 border-t bg-white safe-area-pb">
             <Button className="w-full h-12 text-base shadow-lg shadow-primary/20" onClick={handleSave}>
