@@ -92,62 +92,135 @@ const cleanText = (text: string): string => {
   return cleanLines.join('\n');
 };
 
-// 3. PRODUCT DETECTION LOGIC
+// 3. PRODUCT DETECTION LOGIC (Optimized for eXtra / Saudi Invoices)
 const detectProducts = (text: string): ExtractedProduct[] => {
   const products: ExtractedProduct[] = [];
   const lines = text.split('\n');
   
+  // Regex to detect the start of a line item (Item Code + Description Start)
+  // eXtra invoices often start with 6-digit item code
+  // Example: 00192837 iPhone 15 Pro Max ...
+  const itemStartRegex = /^(\d{6,14})\s+(.*)/;
+  
+  // Regex to detect price lines (Price + SR/SAR usually at end or near end)
+  // eXtra format often: Qty UnitPrice TotalPrice (or similar columns)
+  // We look for the final price which is usually the largest number with 2 decimals
+  const priceLineRegex = /(\d+)\s+([\d,]+\.\d{2})\s*(SR|SAR|RS)?/i;
+
   let currentProduct: Partial<ExtractedProduct> | null = null;
-  
-  // Matches: ItemCode (6-12 digits) ... Price (digits.digits) ... Currency (SR/SAR optional)
-  // Heuristic optimized for eXtra/Saudi invoices
-  const itemLineRegex = /^(\d{6,14})\s+(.+?)\s+(\d+)\s+([\d,]+\.\d{2})/;
-  
-  for (const line of lines) {
-    const match = line.trim().match(itemLineRegex);
+  let bufferDescription: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    // Check if this line starts a NEW item
+    const startMatch = line.match(itemStartRegex);
     
-    if (match) {
-      if (currentProduct && currentProduct.name) {
-        products.push(cleanProductData(currentProduct as ExtractedProduct));
-      }
-      
-      const priceStr = match[4].replace(/,/g, '');
-      
-      currentProduct = {
-        id: Math.random(),
-        sku: match[1],
-        name: match[2].trim(),
-        price: parseFloat(priceStr),
-        category: "Electronics",
-        selected: true,
-      };
+    // Check if this line contains the PRICE/TOTAL (terminator for the item)
+    // We check for price specifically to know when the item block ends
+    const priceMatch = line.match(priceLineRegex);
+
+    if (startMatch) {
+        // If we were already tracking a product, save it first (unless it was just a fragment)
+        if (currentProduct) {
+             finalizeProduct(currentProduct, bufferDescription, products);
+        }
+
+        // Start new product
+        currentProduct = {
+            id: Math.random(),
+            sku: startMatch[1],
+            selected: true,
+            category: "Electronics" // Default
+        };
+        bufferDescription = [startMatch[2].trim()]; // Start description with the rest of the line
+
+        // If the start line ALSO contains the price (single line item), parse it immediately
+        if (priceMatch) {
+            // Extract price from the match (usually the last capturing group with decimals)
+            const priceStr = priceMatch[2].replace(/,/g, '');
+            currentProduct.price = parseFloat(priceStr);
+            
+            // Clean the price/qty numbers out of the description buffer
+            // This is a heuristic: remove the price string from description if present
+            bufferDescription[0] = bufferDescription[0].replace(priceMatch[0], '').trim();
+            
+            // finalize immediately
+            finalizeProduct(currentProduct, bufferDescription, products);
+            currentProduct = null;
+            bufferDescription = [];
+        }
+
     } else if (currentProduct) {
-      // Continuation lines
-      const isContinuation = line.trim().length > 0 && !line.includes('SR') && !line.match(/^\d/);
-      
-      if (isContinuation) {
-        if (!line.toLowerCase().includes('total') && !line.toLowerCase().includes('vat')) {
-             const trimmedLine = line.trim();
-             if (containsWarrantyInfo(trimmedLine)) {
-                 currentProduct.warrantyRaw = trimmedLine;
-             } else if (currentProduct.name) {
-                 currentProduct.name += " " + trimmedLine;
+        // We are inside a product block
+        
+        // If we hit a price line that wasn't on the start line
+        if (priceMatch) {
+             const priceStr = priceMatch[2].replace(/,/g, '');
+             currentProduct.price = parseFloat(priceStr);
+             
+             // Sometimes price line also has text? rarely. 
+             // We treat this as the end of the item.
+             finalizeProduct(currentProduct, bufferDescription, products);
+             currentProduct = null;
+             bufferDescription = [];
+        } else {
+             // It's a description continuation line
+             // Stop if we hit keywords like "Total", "VAT", "Discount" which signal end of list
+             if (line.match(/^(Total|Subtotal|VAT|Discount|Amount)/i)) {
+                 finalizeProduct(currentProduct, bufferDescription, products);
+                 currentProduct = null;
+                 bufferDescription = [];
+             } else {
+                 // Clean garbage
+                 if (line.length > 2 && !line.match(/^[\d\s]+$/)) {
+                     bufferDescription.push(line);
+                 }
              }
         }
-      } else if (line.trim() === '' || line.includes('------')) {
-        if (currentProduct && currentProduct.name) {
-           products.push(cleanProductData(currentProduct as ExtractedProduct));
-           currentProduct = null;
-        }
-      }
     }
   }
 
-  if (currentProduct?.name) {
-    products.push(cleanProductData(currentProduct as ExtractedProduct));
+  // Finalize last item if exists
+  if (currentProduct) {
+      finalizeProduct(currentProduct, bufferDescription, products);
   }
 
   return products;
+};
+
+const finalizeProduct = (
+    product: Partial<ExtractedProduct>, 
+    descriptionLines: string[], 
+    products: ExtractedProduct[]
+) => {
+    // Merge description lines
+    let fullDescription = descriptionLines.join(' ');
+    
+    // Extract warranty if present in the full text
+    let warrantyRaw = undefined;
+    
+    // Check for warranty in specific lines or full text
+    // We iterate lines to find the specific warranty line to keep it clean
+    const warrantyLineIndex = descriptionLines.findIndex(l => containsWarrantyInfo(l));
+    if (warrantyLineIndex !== -1) {
+        warrantyRaw = descriptionLines[warrantyLineIndex];
+        // Remove warranty line from description
+        descriptionLines.splice(warrantyLineIndex, 1);
+        fullDescription = descriptionLines.join(' ');
+    }
+
+    product.name = fullDescription;
+    product.warrantyRaw = warrantyRaw;
+
+    // Run standard cleaner
+    const cleaned = cleanProductData(product as ExtractedProduct);
+    
+    // Only add if it looks valid
+    if (cleaned.name && cleaned.name.length > 3) {
+        products.push(cleaned);
+    }
 };
 
 // Helper: Check if string contains warranty keywords
