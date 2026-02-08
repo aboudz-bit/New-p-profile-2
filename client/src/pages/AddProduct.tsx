@@ -166,6 +166,11 @@ export default function AddProduct() {
                             <div className="space-y-1">
                               <Label className="text-xs text-muted-foreground">{t("add_product.product_name")}</Label>
                               <Input defaultValue={product.name} className="h-8 bg-white" disabled={!product.selected} />
+                              {product.warrantyRaw && (
+                                <p className="text-[10px] text-emerald-600 font-medium pt-1">
+                                  Detected Warranty: {product.warrantyRaw}
+                                </p>
+                              )}
                             </div>
                             <div className="flex gap-3">
                               <div className="flex-1 space-y-1">

@@ -9,6 +9,7 @@ export interface ExtractedProduct {
   selected: boolean;
   sku?: string;
   rawText?: string;
+  warrantyRaw?: string;
 }
 
 export interface ExtractionResult {
@@ -135,7 +136,7 @@ const detectProducts = (text: string): ExtractedProduct[] => {
     if (match) {
       // Found a new product line
       if (currentProduct && currentProduct.name) {
-        products.push(currentProduct as ExtractedProduct);
+        products.push(cleanProductData(currentProduct as ExtractedProduct));
       }
       
       const priceStr = match[4].replace(/,/g, '');
@@ -156,14 +157,18 @@ const detectProducts = (text: string): ExtractedProduct[] => {
       if (isContinuation) {
         // Append to description if it doesn't look like a footer/total line
         if (!line.toLowerCase().includes('total') && !line.toLowerCase().includes('vat')) {
-             if (currentProduct.name) {
-                 currentProduct.name += " " + line.trim();
+             const trimmedLine = line.trim();
+             // Heuristic: If line contains warranty keywords, treat as warranty info, not name
+             if (containsWarrantyInfo(trimmedLine)) {
+                 currentProduct.warrantyRaw = trimmedLine;
+             } else if (currentProduct.name) {
+                 currentProduct.name += " " + trimmedLine;
              }
         }
       } else if (line.trim() === '' || line.includes('------')) {
         // End of product block
         if (currentProduct && currentProduct.name) {
-           products.push(currentProduct as ExtractedProduct);
+           products.push(cleanProductData(currentProduct as ExtractedProduct));
            currentProduct = null;
         }
       }
@@ -172,8 +177,46 @@ const detectProducts = (text: string): ExtractedProduct[] => {
 
   // Push last product if exists
   if (currentProduct?.name) {
-    products.push(currentProduct as ExtractedProduct);
+    products.push(cleanProductData(currentProduct as ExtractedProduct));
   }
 
   return products;
+};
+
+// Helper: Check if string contains warranty keywords
+const containsWarrantyInfo = (str: string): boolean => {
+    const lower = str.toLowerCase();
+    return lower.includes('warranty') || 
+           lower.includes('months') || 
+           lower.includes('years') || 
+           lower.includes('year') || 
+           lower.includes('month') || 
+           lower.includes('ضمان') ||
+           lower.includes('سنة') ||
+           lower.includes('شهر');
+};
+
+// Helper: Clean final product name
+const cleanProductData = (product: ExtractedProduct): ExtractedProduct => {
+    let name = product.name;
+    
+    // If name contains warranty info inline (not on separate line), try to split it
+    // Regex for common warranty patterns at end of string
+    const warrantyRegex = /\s*(?:Warranty|ضمان|Cover|Duration)[:\s]+.*/i;
+    const match = name.match(warrantyRegex);
+    if (match) {
+        product.warrantyRaw = match[0].trim();
+        name = name.replace(warrantyRegex, '');
+    }
+
+    // Explicit cleanup of keywords if they persist
+    name = name.replace(/\b(Warranty|Months|Years|Year|Month|ضمان)\b/gi, '').trim();
+    
+    // Remove extra spaces
+    name = name.replace(/\s+/g, ' ').trim();
+    
+    return {
+        ...product,
+        name
+    };
 };
