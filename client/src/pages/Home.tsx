@@ -4,17 +4,46 @@ import { Button } from "@/components/ui/button";
 import { Plus, ScanLine, ShieldAlert } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ProductCard } from "@/components/ui/product-card";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useI18n } from "@/lib/i18n";
+import { useRef } from "react";
 
 export default function Home() {
   const { t, language } = useI18n();
   const expiringProducts = MOCK_PRODUCTS.filter(p => p.status === 'expiring' || p.status === 'eligible');
   const recentProducts = MOCK_PRODUCTS.slice(0, 3);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [, setLocation] = useLocation();
+
+  const handleAddProduct = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // In a real app, we would process the file here.
+      // For the prototype, we'll navigate to the review step of the Add Product flow
+      // passing a state or just navigating to the route that handles the "scanned" state.
+      // Since the current AddProduct page handles the scanning simulation, we can
+      // simulate that a scan has "completed" by navigating to it.
+      // Ideally, we'd pass the file object, but for now we just trigger the flow.
+      setLocation('/scan-invoice'); 
+    }
+  };
 
   return (
     <MobileLayout>
       <div className="p-6 space-y-8 pb-24">
+        {/* Hidden File Input */}
+        <input
+          type="file"
+          accept="image/*,application/pdf"
+          className="hidden"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+        />
+
         {/* Header */}
         <div className="flex justify-between items-start pt-4 animate-in fade-in slide-in-from-top-4 duration-700">
           <div>
@@ -53,23 +82,27 @@ export default function Home() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-          <Link href="/add-product">
-            <Button variant="outline" className="w-full h-auto flex-col py-6 gap-3 border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 group">
-              <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                <Plus className="w-5 h-5 text-slate-600 group-hover:text-primary" />
-              </div>
-              <span className="font-medium text-slate-700 group-hover:text-primary">{t("home.add_product")}</span>
-            </Button>
-          </Link>
+          <Button 
+            variant="outline" 
+            className="w-full h-auto flex-col py-6 gap-3 border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 group"
+            onClick={handleAddProduct}
+          >
+            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+              <Plus className="w-5 h-5 text-slate-600 group-hover:text-primary" />
+            </div>
+            <span className="font-medium text-slate-700 group-hover:text-primary">{t("home.add_product")}</span>
+          </Button>
           
-          <Link href="/scan-invoice">
-            <Button variant="outline" className="w-full h-auto flex-col py-6 gap-3 border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 group">
-              <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                <ScanLine className="w-5 h-5 text-slate-600 group-hover:text-primary" />
-              </div>
-              <span className="font-medium text-slate-700 group-hover:text-primary">{t("home.scan_invoice")}</span>
-            </Button>
-          </Link>
+          <Button 
+            variant="outline" 
+            className="w-full h-auto flex-col py-6 gap-3 border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 group"
+            onClick={handleAddProduct}
+          >
+            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+              <ScanLine className="w-5 h-5 text-slate-600 group-hover:text-primary" />
+            </div>
+            <span className="font-medium text-slate-700 group-hover:text-primary">{t("home.scan_invoice")}</span>
+          </Button>
         </div>
 
         {/* Recent Products */}
