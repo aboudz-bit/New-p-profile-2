@@ -13,10 +13,15 @@ export default function Home() {
   const expiringProducts = MOCK_PRODUCTS.filter(p => p.status === 'expiring' || p.status === 'eligible');
   const recentProducts = MOCK_PRODUCTS.slice(0, 3);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [, setLocation] = useLocation();
 
   const handleAddProduct = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleScanInvoice = () => {
+    cameraInputRef.current?.click();
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,19 +33,29 @@ export default function Home() {
       // Since the current AddProduct page handles the scanning simulation, we can
       // simulate that a scan has "completed" by navigating to it.
       // Ideally, we'd pass the file object, but for now we just trigger the flow.
-      setLocation('/scan-invoice'); 
+      setLocation('/add-product?step=review'); 
     }
   };
 
   return (
     <MobileLayout>
       <div className="p-6 space-y-8 pb-24">
-        {/* Hidden File Input */}
+        {/* Hidden File Input (Add Product) */}
         <input
           type="file"
           accept="image/*,application/pdf"
           className="hidden"
           ref={fileInputRef}
+          onChange={handleFileChange}
+        />
+        
+        {/* Hidden Camera Input (Scan Invoice) */}
+        <input
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          ref={cameraInputRef}
           onChange={handleFileChange}
         />
 
@@ -96,7 +111,7 @@ export default function Home() {
           <Button 
             variant="outline" 
             className="w-full h-auto flex-col py-6 gap-3 border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 group"
-            onClick={handleAddProduct}
+            onClick={handleScanInvoice}
           >
             <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
               <ScanLine className="w-5 h-5 text-slate-600 group-hover:text-primary" />

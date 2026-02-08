@@ -13,9 +13,15 @@ import { useI18n } from "@/lib/i18n";
 type Step = 'scan' | 'review' | 'confirm';
 
 export default function AddProduct() {
-  const [step, setStep] = useState<Step>('scan');
+  const [location, setLocation] = useLocation();
+  const searchParams = new URLSearchParams(window.location.search);
+  const initialStep = searchParams.get('step') as Step || 'review';
+  
+  const [step, setStep] = useState<Step>(initialStep);
+  // We're skipping the scanning UI, so we don't need scanning state here for the flow anymore
+  // But keeping it if we need fallback
   const [scanning, setScanning] = useState(false);
-  const [, setLocation] = useLocation();
+  
   const { t, language } = useI18n();
 
   // Mock extracted data
@@ -24,14 +30,15 @@ export default function AddProduct() {
     { id: 2, name: "DualSense Controller", category: "Gaming", price: 69.99, selected: true },
   ]);
 
-  // Simulate scanning
-  const startScan = () => {
-    setScanning(true);
-    setTimeout(() => {
-      setScanning(false);
-      setStep('review');
-    }, 2500);
-  };
+  // If we land here directly without step=review, and we want to enforce skipping scan:
+  useEffect(() => {
+     if (step === 'scan') {
+        // In the new architecture, we shouldn't really be in 'scan' mode here
+        // But if someone navigates manually, maybe redirect or show file picker again?
+        // For now, let's just default to review to simulate "file received"
+        setStep('review');
+     }
+  }, []);
 
   const toggleProduct = (id: number) => {
     setDetectedProducts(products => 
@@ -52,7 +59,7 @@ export default function AddProduct() {
       <div className="flex flex-col h-screen bg-background">
         {/* Header */}
         <div className="p-4 border-b flex items-center justify-between bg-white z-10">
-          <Button variant="ghost" size="sm" onClick={() => step === 'scan' ? setLocation('/') : setStep('scan')}>
+          <Button variant="ghost" size="sm" onClick={() => setLocation('/')}>
             {t("add_product.cancel")}
           </Button>
           <span className="font-semibold text-sm">
@@ -64,40 +71,11 @@ export default function AddProduct() {
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           
-          {/* STEP 1: SCAN */}
+          {/* STEP 1: SCAN (DEPRECATED IN NEW FLOW - BUT KEPT AS FALLBACK IF NEEDED, THOUGH HIDDEN BY LOGIC) */}
           {step === 'scan' && (
-            <div className="flex flex-col items-center justify-center h-full p-8 space-y-8">
-              <div className="relative w-64 h-80 bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-800 flex items-center justify-center">
-                {scanning ? (
-                  <>
-                    <div className="absolute inset-0 bg-emerald-500/10 animate-pulse" />
-                    <ScanLine className="w-16 h-16 text-emerald-400 animate-bounce" />
-                    <div className="absolute bottom-8 text-emerald-400 font-mono text-sm">{t("add_product.processing")}...</div>
-                  </>
-                ) : (
-                  <Camera className="w-16 h-16 text-slate-700" />
-                )}
-                
-                {/* Camera UI overlay */}
-                <div className={cn("absolute top-4 w-2 h-2 rounded-full bg-red-500", language === 'ar' ? "left-4" : "right-4")} />
-                <div className="absolute bottom-0 inset-x-0 h-1/3 bg-gradient-to-t from-black/50 to-transparent" />
-              </div>
-
-              <div className="text-center space-y-2">
-                <h2 className="text-xl font-display font-bold">{t("add_product.snap_invoice")}</h2>
-                <p className="text-sm text-muted-foreground whitespace-pre-line">
-                  {t("add_product.snap_desc")}
-                </p>
-              </div>
-
-              <Button size="lg" className="w-full max-w-xs h-12 text-base shadow-lg shadow-primary/20" onClick={startScan} disabled={scanning}>
-                {scanning ? (
-                  <><Loader2 className={cn("w-4 h-4 animate-spin", language === 'ar' ? "ml-2" : "mr-2")} /> {t("add_product.processing")}</>
-                ) : (
-                  <>{t("add_product.capture_photo")}</>
-                )}
-              </Button>
-            </div>
+             <div className="flex items-center justify-center h-full">
+                <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+             </div>
           )}
 
           {/* STEP 2: REVIEW */}

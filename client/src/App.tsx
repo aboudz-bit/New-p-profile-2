@@ -21,7 +21,7 @@ function Router() {
       <Route path="/documents" component={Documents} />
       <Route path="/settings" component={Settings} />
       <Route path="/add-product" component={AddProduct} />
-      <Route path="/scan-invoice" component={AddProduct} />
+      {/* <Route path="/scan-invoice" component={AddProduct} />  REMOVED as per requirements */}
       <Route component={NotFound} />
     </Switch>
   );

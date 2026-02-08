@@ -1,0 +1,73 @@
+You are Replit AI working on the P Profile app.
+
+APPLY THE FINAL, CORRECT ADD-PRODUCT & SCAN-INVOICE ARCHITECTURE.
+This overrides ALL previous implementations.
+
+================================================
+CORE UX PRINCIPLE
+================================================
+Camera and file selection are ACTIONS, not PAGES.
+No shared routes. No intermediate screens. No duplication.
+
+================================================
+REMOVE PAGE
+================================================
+DELETE / BYPASS the route:
+/scan-invoice
+
+- This page must NOT exist.
+- No camera UI should render as a standalone page.
+- No headers, no buttons, no “التقاط صورة” screen.
+
+================================================
+FINAL BUTTON BEHAVIOR (STRICT)
+================================================
+
+1) Button: “مسح الفاتورة”
+--------------------------------
+- MUST open the device CAMERA directly.
+- NO navigation.
+- NO system picker.
+- NO photo library.
+- Camera opens instantly as an action.
+
+2) Button: “إضافة منتج”
+--------------------------------
+- MUST open the system FILE PICKER.
+- Allowed options ONLY:
+  - Photo Library
+  - Choose File (PDF / image)
+- MUST NOT include “Take Photo”.
+- MUST NOT open camera.
+
+================================================
+POST-SELECTION FLOW
+================================================
+After user selects:
+- Camera photo (from “مسح الفاتورة”)
+- OR image/PDF (from “إضافة منتج”)
+
+Then:
+1) Run OCR immediately.
+2) Navigate to “Review Products” screen.
+
+NO OTHER STEPS.
+NO EXTRA SCREENS.
+
+================================================
+RULES (NO EXCEPTIONS)
+================================================
+- Do NOT reuse /scan-invoice anywhere.
+- Do NOT show custom modals or selection pages.
+- Each button has ONE intent only.
+- No duplicated capabilities between buttons.
+
+================================================
+QUALITY CHECK (MANDATORY)
+================================================
+- “مسح الفاتورة” → camera opens instantly.
+- “إضافة منتج” → file picker opens WITHOUT camera option.
+- No route change when opening camera or picker.
+- OCR → Review Products is the only flow.
+
+IMPLEMENT THIS AS FINAL BEHAVIOR.
