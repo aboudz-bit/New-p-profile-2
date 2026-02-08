@@ -39,6 +39,11 @@ export const simulateOCR = async (file: File): Promise<ExtractionResult> => {
     // Call our secure backend proxy
     const response = await axios.post("/api/ocr", { image: base64Image });
     const rawText = response.data.text;
+    
+    // DEBUG: Log the full text from Vision API
+    console.log("--- GOOGLE VISION RAW TEXT START ---");
+    console.log(rawText);
+    console.log("--- GOOGLE VISION RAW TEXT END ---");
 
     if (!rawText) {
       throw new Error("No text detected");
@@ -51,6 +56,23 @@ export const simulateOCR = async (file: File): Promise<ExtractionResult> => {
     const merchant = parseMerchant(rawText);
     const date = parseDate(rawText);
     const total = parseTotal(rawText);
+    
+    // FORCE RESULT: If parsing failed but we have text, return a fallback item
+    if (products.length === 0 && rawText.length > 20) {
+        console.warn("Structured parsing returned 0 products. Using fallback.");
+        const fallbackLines = cleanedText.split('\n').filter(l => l.length > 5).slice(0, 3);
+        const fallbackName = fallbackLines.join(' ');
+        
+        products.push({
+            id: Math.random(),
+            name: fallbackName || "Unknown Item",
+            price: total || 0,
+            category: "Uncategorized",
+            selected: true,
+            sku: "UNKNOWN",
+            warrantyRaw: "Check Invoice"
+        });
+    }
 
     return {
       merchant,
