@@ -1,0 +1,256 @@
+You are Replit AI.
+Build a COMPLETE, production-ready application called “P Profile” from scratch (or refactor the existing one to fully match this specification).
+
+This is NOT a demo toy.
+This is a real product intended for real users, real partners (retailers, service providers, insurers), and investors.
+
+================================================
+CORE IDEA (DO NOT BREAK)
+================================================
+P Profile = Digital Product Identity Platform
+
+We turn receipts into verified product ownership.
+Each product has:
+- Proof (invoice)
+- Warranty (manufacturer)
+- Protection options (extended / insurance)
+- Maintenance history
+- Transferable ownership
+
+Products are PRIMARY.
+Invoices are SECONDARY proof.
+
+================================================
+TARGET USERS
+================================================
+1) Consumers (end users)
+2) Retailers / Service Providers / Protection sellers (B2B partners)
+The app must work for consumers first, but be attractive for partners.
+
+================================================
+APP STRUCTURE (SIMPLE & CLEAR)
+================================================
+Main navigation (4 tabs only):
+- Home
+- Products
+- Documents
+- Settings
+
+Mobile-first UI. Clean. Card-based. Minimal forms.
+
+================================================
+HOME (OVERVIEW – TRUST BUILDER)
+================================================
+Purpose:
+Instantly show value without explanation.
+
+Home must show:
+- Greeting + total products tracked
+- Alerts (only if relevant):
+  - Warranty expiring soon
+  - Protection available
+- Primary actions:
+  - Add Product
+  - Scan Invoice
+
+NO charts.
+NO clutter.
+NO ads.
+
+================================================
+PRODUCTS (CORE EXPERIENCE)
+================================================
+A) Products List
+Each product card must show at a glance:
+- Product name
+- Status badge:
+  - Under Manufacturer Warranty
+  - Protection Active
+  - Unprotected
+- Expiry date if applicable
+
+Tap → Product Profile
+
+------------------------------------------------
+B) Product Profile (MOST IMPORTANT SCREEN)
+------------------------------------------------
+Display information as sections (cards), not forms.
+
+1) Product Identity
+- Name
+- Category
+- Serial number (optional but recommended)
+
+2) Manufacturer Warranty (Official)
+- Provider (Apple, Samsung, etc.)
+- Status: Active / Expired
+- Expiry date
+
+3) Protection Plan (Optional / Commercial)
+- Status: Active / Available / Not eligible
+- Provider (e.g. Extra)
+- Coverage summary
+- CTA (if available):
+  “Protect this product”
+
+IMPORTANT:
+- NEVER call protection a “Warranty”
+- Use “Protection Plan” or “Extended Protection”
+
+4) Maintenance History
+- Timeline view
+- Each record includes:
+  - Date
+  - Type (Repair / Service / Part replacement)
+  - Notes
+- CTA:
+  “Add maintenance”
+
+Maintenance records are tied to the PRODUCT (via product ID + serial number if available).
+
+5) Ownership & Transfer
+- CTA:
+  “Transfer / Sell product”
+- Allow generating a secure transfer link.
+- Buyer can accept and receive:
+  - Product
+  - Invoice (optional, redacted by default)
+  - Maintenance history (optional)
+
+6) Proof (Documents)
+- Linked invoice(s)
+- View-only
+- Fullscreen viewer with zoom
+- Invoice is always accessible after upload.
+
+================================================
+DOCUMENTS (SECONDARY)
+================================================
+Documents list:
+- Invoice name (merchant)
+- Date
+- Linked products count
+- View only
+
+Invoices are NEVER edited after upload.
+Invoices are NEVER the main focus.
+
+================================================
+ADD PRODUCT FLOW (CRITICAL UX)
+================================================
+Flow must be:
+Simple → Review → Confirm
+
+Step 1: Scan Invoice
+- Camera or upload
+- Clear instruction
+- Continue
+
+Step 2: Review Products
+- Show invoice summary (read-only)
+- Extract detected products into Product Cards
+Each detected product:
+- Toggle: Add to P Profile (default ON)
+- Editable name
+- Category
+- Manufacturer warranty info (if known)
+- Warranty provider inferred from merchant
+- Optional: apply settings to all
+
+NO global warranty form.
+
+Step 3: Confirm & Save
+- Clear summary:
+  “You are saving:
+   • 1 invoice
+   • X products”
+- CTA:
+  “Save 1 invoice & X products”
+- If X = 0:
+  “Save invoice only”
+
+================================================
+SETTINGS (ALL FUNCTIONAL – NO COMING SOON)
+================================================
+A) Profile
+- Name
+- Email (read-only if auth-based)
+- Phone
+- Country
+
+B) Notifications
+- Warranty expiry reminders (ON/OFF)
+- Reminder timing (7 / 30 days)
+- In-app notifications
+
+C) Language
+- Arabic / English
+- Instant switch
+- No raw translation keys ever visible
+
+D) Privacy
+- Allow product transfer (ON/OFF)
+- Allow invoice sharing during transfer (ON/OFF)
+- Mask serial numbers by default (ON)
+
+================================================
+MONETIZATION (NO PAYWALL NOW – PREPARE FOR IT)
+================================================
+Product registration is FREE.
+
+Revenue happens at moments of value:
+- Product transfer
+- Protection plans (insurance / extended protection)
+- B2B partnerships
+
+Do NOT implement payment now.
+Do implement hooks & structure to support it later.
+
+================================================
+PROTECTION / INSURANCE INTEGRATION (STRATEGIC)
+================================================
+- Protection plans are offered ONLY when relevant:
+  - Manufacturer warranty expired or near expiry
+  - User taps “Protect this product”
+- App acts as a DISTRIBUTION PLATFORM, not an insurer.
+- Partners provide plans (e.g. Extra).
+- P Profile earns commission per successful lead or sale.
+
+UI copy must clearly distinguish:
+- Manufacturer Warranty
+- Protection Plan
+
+================================================
+DATA MODELS (MINIMUM)
+================================================
+User
+Product
+Invoice
+MaintenanceRecord
+TransferInvite
+ProtectionInterest (for lead validation)
+
+================================================
+QUALITY & UX RULES
+================================================
+- No dead buttons
+- No “Coming Soon”
+- No confusing terminology
+- No feature bloat
+- Everything visible must work
+
+================================================
+FINAL GOAL
+================================================
+The app must:
+- Be understandable in under 2 minutes
+- Feel trustworthy
+- Feel valuable even if free
+- Be attractive to retailers, service providers, and protection sellers
+- Be scalable without redesign
+
+START NOW:
+- Design the full UI
+- Implement the core flows
+- Keep it clean and minimal
+- Prioritize product ownership over features
