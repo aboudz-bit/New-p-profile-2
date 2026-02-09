@@ -1,3 +1,43 @@
+// User Roles
+export type UserRole = "customer" | "merchant_owner" | "merchant_staff" | "admin";
+
+export interface User {
+  id: string;
+  name: string;
+  phone: string;
+  role: UserRole;
+  merchantId?: string;
+  email?: string;
+}
+
+// MOCK USERS for Authentication Simulation
+export const MOCK_USERS: User[] = [
+  {
+    id: "user_customer_1",
+    name: "Ali Ahmed",
+    phone: "555123456",
+    role: "customer",
+    email: "ali@example.com"
+  },
+  {
+    id: "user_merchant_owner_1",
+    name: "Sami Owner",
+    phone: "555987654",
+    role: "merchant_owner",
+    merchantId: "merch_001",
+    email: "sami@store.com"
+  },
+  {
+    id: "user_merchant_staff_1",
+    name: "Rana Staff",
+    phone: "555111222",
+    role: "merchant_staff",
+    merchantId: "merch_001",
+    email: "rana@store.com"
+  }
+];
+
+// ... rest of existing mock data ...
 import { addDays, subDays } from "date-fns";
 
 export interface MaintenanceRecord {
