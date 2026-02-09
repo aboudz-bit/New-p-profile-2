@@ -11,6 +11,8 @@ import ProductProfile from "@/pages/ProductProfile";
 import Documents from "@/pages/Documents";
 import Settings from "@/pages/Settings";
 import AddProduct from "@/pages/AddProduct";
+import Wishlist from "@/pages/Wishlist";
+import Cart from "@/pages/Cart";
 
 function Router() {
   return (
@@ -21,7 +23,8 @@ function Router() {
       <Route path="/documents" component={Documents} />
       <Route path="/settings" component={Settings} />
       <Route path="/add-product" component={AddProduct} />
-      {/* <Route path="/scan-invoice" component={AddProduct} />  REMOVED as per requirements */}
+      <Route path="/wishlist" component={Wishlist} />
+      <Route path="/cart" component={Cart} />
       <Route component={NotFound} />
     </Switch>
   );

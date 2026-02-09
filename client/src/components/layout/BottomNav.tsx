@@ -1,16 +1,19 @@
-import { Home, Package, FileText, Settings } from "lucide-react";
+import { Home, Package, FileText, Settings, Heart, ShoppingCart } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
+import { useStore } from "@/hooks/use-store";
 
 export function BottomNav() {
   const [location] = useLocation();
   const { t } = useI18n();
+  const { cartItems } = useStore();
 
   const navItems = [
     { icon: Home, label: t("nav.home"), href: "/" },
     { icon: Package, label: t("nav.products"), href: "/products" },
-    { icon: FileText, label: t("nav.documents"), href: "/documents" },
+    { icon: Heart, label: "Wishlist", href: "/wishlist" }, // Added Wishlist
+    { icon: ShoppingCart, label: "Cart", href: "/cart", badge: cartItems.length > 0 ? cartItems.length : undefined }, // Added Cart
     { icon: Settings, label: t("nav.settings"), href: "/settings" },
   ];
 
@@ -23,15 +26,22 @@ export function BottomNav() {
             <Link key={item.href} href={item.href}>
               <div
                 className={cn(
-                  "flex flex-col items-center justify-center w-16 h-full space-y-1 transition-colors duration-200 cursor-pointer",
+                  "flex flex-col items-center justify-center w-12 h-full space-y-1 transition-colors duration-200 cursor-pointer relative",
                   isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <item.icon
-                  strokeWidth={isActive ? 2.5 : 2}
-                  className={cn("w-6 h-6 transition-transform", isActive && "scale-110")}
-                />
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <div className="relative">
+                    <item.icon
+                    strokeWidth={isActive ? 2.5 : 2}
+                    className={cn("w-6 h-6 transition-transform", isActive && "scale-110")}
+                    />
+                    {item.badge !== undefined && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                            {item.badge}
+                        </span>
+                    )}
+                </div>
+                <span className="text-[9px] font-medium truncate w-full text-center">{item.label}</span>
               </div>
             </Link>
           );
