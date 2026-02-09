@@ -3,29 +3,17 @@ import { MOCK_USER } from "@/lib/mockData";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Bell, Globe, Lock, ChevronRight, LogOut, Shield, ChevronLeft, Users } from "lucide-react";
+import { Bell, Globe, Lock, ChevronRight, LogOut, Shield, ChevronLeft } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/hooks/use-auth";
-import { useLocation } from "wouter";
 
 export default function Settings() {
   const { language, setLanguage, t } = useI18n();
   const ChevronIcon = language === 'ar' ? ChevronLeft : ChevronRight;
-  const { user, logout } = useAuth();
-  const [, setLocation] = useLocation();
 
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'ar' : 'en');
   };
-
-  const handleLogout = () => {
-      logout();
-      setLocation("/role");
-  };
-
-  // If used in context where no auth (e.g. dev), fallback to mock
-  const displayUser = user || { ...MOCK_USER, role: 'customer' };
 
   return (
     <MobileLayout>
@@ -34,37 +22,18 @@ export default function Settings() {
         <div className="p-6 bg-slate-50 border-b">
           <div className="flex items-center gap-4">
             <Avatar className="w-16 h-16 border-2 border-white shadow-sm">
-              <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${displayUser.name}`} />
+              <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${MOCK_USER.name}`} />
               <AvatarFallback>AM</AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-xl font-display font-bold">{displayUser.name}</h1>
-              <p className="text-sm text-muted-foreground">{displayUser.phone || displayUser.email}</p>
-              <div className="flex items-center gap-2 mt-1">
-                 <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold text-slate-600">
-                     {displayUser.role?.replace('_', ' ')}
-                 </span>
-              </div>
+              <h1 className="text-xl font-display font-bold">{MOCK_USER.name}</h1>
+              <p className="text-sm text-muted-foreground">{MOCK_USER.email}</p>
+              <p className="text-xs text-slate-400 mt-1">{t("settings.member_since", { date: MOCK_USER.memberSince })}</p>
             </div>
           </div>
         </div>
 
         <div className="p-6 space-y-8">
-
-          {/* MERCHANT OWNER ONLY: Staff Management */}
-          {displayUser.role === 'merchant_owner' && (
-              <section className="space-y-4">
-                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Business Settings</h2>
-                <button className="w-full flex items-center justify-between p-3 rounded-lg bg-emerald-50/50 border border-emerald-100 hover:bg-emerald-50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-emerald-600" />
-                    <span className="font-medium text-emerald-900">Staff Management</span>
-                  </div>
-                  <ChevronIcon className="w-4 h-4 text-emerald-600" />
-                </button>
-              </section>
-          )}
-
           {/* Notifications */}
           <section className="space-y-4">
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t("settings.notifications")}</h2>
@@ -121,17 +90,13 @@ export default function Settings() {
             </button>
           </section>
           
-          <Button 
-            variant="outline" 
-            className="w-full text-destructive hover:text-destructive hover:bg-destructive/5 border-destructive/20"
-            onClick={handleLogout}
-          >
+          <Button variant="outline" className="w-full text-destructive hover:text-destructive hover:bg-destructive/5 border-destructive/20">
             <LogOut className={cn("w-4 h-4", language === 'ar' ? "ml-2" : "mr-2")} />
             {t("settings.sign_out")}
           </Button>
 
           <div className="text-center text-xs text-slate-300 pt-8">
-            Loom v1.1.0 (Mockup Mode)
+            P Profile v1.0.0 (Build 2024.1)
           </div>
         </div>
       </div>
