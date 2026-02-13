@@ -1,0 +1,245 @@
+# 🔷 Replit System Prompt  
+## Project: B2B Asset & Warranty Management SaaS (Enterprise-Grade)
+
+We are rebuilding this application into a multi-tenant B2B SaaS platform for companies to manage assets, warranties, branches, and maintenance operations.
+
+This is NOT a consumer app.  
+This must feel like enterprise-grade software.  
+Use clean architecture, modular backend, scalable database design, and proper RBAC.
+
+---------------------------------------------------
+1️⃣ Multi-Tenant Architecture (CRITICAL)
+---------------------------------------------------
+
+Implement strict tenant isolation:
+
+- Every company has completely isolated data.
+- ALL database queries MUST filter by `company_id`.
+- No cross-company access under any circumstances.
+- Use middleware to enforce tenant context.
+- Auth session must include company_id.
+
+All main tables MUST include:
+company_id (required, indexed)
+
+---------------------------------------------------
+2️⃣ Core Database Schema
+---------------------------------------------------
+
+Design normalized relational schema.
+
+Company
+- id (UUID)
+- name
+- subscription_plan (BASIC, PRO, ENTERPRISE)
+- asset_limit
+- created_at
+
+Branch
+- id (UUID)
+- company_id (FK)
+- name
+- location
+- created_at
+
+User
+- id (UUID)
+- company_id (FK)
+- branch_id (nullable FK)
+- name
+- email (unique per company)
+- password_hash
+- role (ADMIN, FINANCE, IT, MAINTENANCE)
+- created_at
+
+Asset
+- id (UUID)
+- company_id (FK)
+- branch_id (FK)
+- internal_asset_number (auto-generated: AST-0001 format)
+- product_name
+- serial_number
+- invoice_number
+- purchase_date
+- warranty_expiry_date
+- warranty_status (ACTIVE, EXPIRING_SOON, EXPIRED)
+- asset_status (ACTIVE, UNDER_MAINTENANCE, RETIRED)
+- responsible_user_id (FK)
+- invoice_image_url
+- created_at
+- updated_at
+
+MaintenanceTicket
+- id (UUID)
+- company_id (FK)
+- asset_id (FK)
+- issue_description
+- status (OPEN, IN_PROGRESS, CLOSED)
+- opened_by_user_id
+- assigned_to_user_id
+- opened_at
+- closed_at
+
+Indexes required:
+- company_id
+- branch_id
+- warranty_expiry_date
+- asset_status
+
+---------------------------------------------------
+3️⃣ Asset Registry Module (Operational Core)
+---------------------------------------------------
+
+Implement full asset registry system:
+
+Features:
+- Create asset manually
+- Create asset via invoice OCR upload
+- Assign asset to branch
+- Assign responsible employee
+- Auto-generate internal asset number
+- Upload invoice image
+- Editable warranty expiry
+
+This module must feel like an internal company operations tool.
+
+---------------------------------------------------
+4️⃣ Warranty Tracking Dashboard
+---------------------------------------------------
+
+Create executive dashboard with:
+
+Widgets:
+- Assets Expiring in 30 days
+- Expired Warranties
+- Assets Under Maintenance
+- Total Assets by Branch
+- Total Assets by Status
+
+Add color-coded alerts:
+- Red = expired
+- Orange = expiring soon
+- Green = active
+
+Include filters:
+- By branch
+- By status
+- By warranty range
+
+---------------------------------------------------
+5️⃣ Multi-Branch Support
+---------------------------------------------------
+
+Each company can create multiple branches:
+- Warehouse
+- Office
+- Store branches
+
+Assets are assigned to branches.
+Users can be branch-scoped (optional).
+
+Dashboard must allow branch filtering.
+
+---------------------------------------------------
+6️⃣ Role-Based Access Control (RBAC)
+---------------------------------------------------
+
+Roles:
+
+ADMIN:
+- Full access
+- Manage users
+- Manage branches
+- View reports
+- Manage subscription
+
+FINANCE:
+- View assets
+- View warranty dashboard
+- Export reports
+- No system settings
+
+IT:
+- Manage assets
+- Open maintenance tickets
+- Update asset status
+
+MAINTENANCE:
+- View assigned tickets
+- Update maintenance status
+
+Enforce role middleware on backend routes.
+
+---------------------------------------------------
+7️⃣ Reporting & Export
+---------------------------------------------------
+
+Generate exportable reports:
+
+- Asset Report (CSV / Excel)
+- Warranty Expiry Report
+- Maintenance Report
+
+Filters:
+- Date range
+- Branch
+- Status
+
+Reports must be clean and management-ready.
+
+---------------------------------------------------
+8️⃣ Subscription Model (NO COMMISSION MODEL)
+---------------------------------------------------
+
+Do NOT use revenue sharing.
+
+Implement annual subscription model:
+
+BASIC:
+- Limited assets (e.g. 100)
+
+PRO:
+- Higher asset limit
+- Multi-branch
+- Reports
+
+ENTERPRISE:
+- Unlimited assets
+- Full features
+- Priority support
+
+Add middleware:
+- Check asset_limit before creating new asset.
+
+---------------------------------------------------
+9️⃣ Clean Backend Structure
+---------------------------------------------------
+
+Organize backend:
+
+/server
+  /routes
+  /services
+  /middlewares
+  /models
+  /utils
+
+Separate business logic from routes.
+
+---------------------------------------------------
+🔟 Security & Production Standards
+---------------------------------------------------
+
+- Password hashing (bcrypt)
+- JWT authentication
+- Rate limiting on auth
+- Validate all inputs
+- Never expose secrets in frontend
+- Use environment variables
+
+---------------------------------------------------
+
+Goal:
+This system must look and behave like a real SaaS product for companies managing operational assets — not a simple archive app.
+
+Focus on scalability, clean architecture, and production readiness.
