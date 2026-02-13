@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { I18nProvider } from "@/lib/i18n";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
-import Products from "@/pages/Products";
+import Assets from "./pages/Assets";
 import ProductProfile from "@/pages/ProductProfile";
 import Documents from "@/pages/Documents";
 import Settings from "@/pages/Settings";
@@ -16,7 +16,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/products" component={Products} />
+      <Route path="/assets" component={Assets} />
       <Route path="/product/:id" component={ProductProfile} />
       <Route path="/documents" component={Documents} />
       <Route path="/settings" component={Settings} />

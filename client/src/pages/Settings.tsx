@@ -17,7 +17,7 @@ export default function Settings() {
 
   return (
     <MobileLayout>
-      <div className="pb-24">
+      <div className="pb-24" data-testid="page-settings">
         {/* Profile Header */}
         <div className="p-6 bg-slate-50 border-b">
           <div className="flex items-center gap-4">

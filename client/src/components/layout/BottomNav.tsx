@@ -9,7 +9,7 @@ export function BottomNav() {
 
   const navItems = [
     { icon: Home, label: t("nav.home"), href: "/" },
-    { icon: Package, label: t("nav.products"), href: "/products" },
+    { icon: Package, label: t("nav.products"), href: "/assets" },
     { icon: FileText, label: t("nav.documents"), href: "/documents" },
     { icon: Settings, label: t("nav.settings"), href: "/settings" },
   ];
@@ -20,7 +20,7 @@ export function BottomNav() {
         {navItems.map((item) => {
           const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href));
           return (
-            <Link key={item.href} href={item.href}>
+            <Link key={item.href} href={item.href} data-testid={`link-nav-${item.href.replaceAll('/', '').trim() || 'home'}`}>
               <div
                 className={cn(
                   "flex flex-col items-center justify-center w-16 h-full space-y-1 transition-colors duration-200 cursor-pointer",
