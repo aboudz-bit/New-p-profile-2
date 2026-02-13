@@ -127,6 +127,7 @@ export default function Home() {
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-display font-semibold">{t("home.recent_products")}</h2>
             <Link href="/assets" className="text-sm text-primary font-medium hover:underline" data-testid="link-viewall-assets">{t("home.view_all")}</Link>
+            <Link href="/dashboard" className="text-sm text-muted-foreground font-medium hover:underline" data-testid="link-open-dashboard">Dashboard</Link>
           </div>
           <div className="space-y-3">
             {recentProducts.map(product => (

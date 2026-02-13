@@ -2,6 +2,11 @@ export const translations = {
   en: {
     // Navigation
     "nav.home": "Home",
+    "nav.dashboard": "Dashboard",
+    "nav.assets": "Assets",
+    "nav.branches": "Branches",
+    "nav.reports": "Reports",
+    "nav.users": "Users",
     "nav.products": "Products",
     "nav.documents": "Documents",
     "nav.settings": "Settings",
@@ -89,6 +94,11 @@ export const translations = {
   ar: {
     // Navigation
     "nav.home": "الرئيسية",
+    "nav.dashboard": "لوحة التحكم",
+    "nav.assets": "سجل الأصول",
+    "nav.branches": "الفروع",
+    "nav.reports": "التقارير",
+    "nav.users": "المستخدمون",
     "nav.products": "منتجاتي",
     "nav.documents": "المستندات",
     "nav.settings": "الإعدادات",
