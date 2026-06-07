@@ -7,7 +7,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import { Link } from "wouter";
 
 export default function Products() {
   const [filter, setFilter] = useState<'all' | 'protected' | 'attention'>('all');
@@ -27,12 +26,7 @@ export default function Products() {
     <MobileLayout>
       <div className="flex flex-col h-full min-h-screen">
         <div className="p-6 pb-2 sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b">
-          <div className="flex items-center justify-between gap-3 mb-4">
-            <h1 className="text-2xl font-display font-bold" data-testid="text-assets-title-legacy">{t("products.title")}</h1>
-            <Link href="/assets" data-testid="link-open-assets">
-              <Button size="sm" className="h-9">Open Asset Registry</Button>
-            </Link>
-          </div>
+          <h1 className="text-2xl font-display font-bold mb-4">{t("products.title")}</h1>
           
           <div className="flex gap-2 mb-4">
             <div className="relative flex-1">

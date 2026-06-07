@@ -101,7 +101,6 @@ export default function Home() {
             variant="outline" 
             className="w-full h-auto flex-col py-6 gap-3 border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 group"
             onClick={handleAddProduct}
-            data-testid="button-add-asset"
           >
             <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
               <Plus className="w-5 h-5 text-slate-600 group-hover:text-primary" />
@@ -113,7 +112,6 @@ export default function Home() {
             variant="outline" 
             className="w-full h-auto flex-col py-6 gap-3 border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 group"
             onClick={handleScanInvoice}
-            data-testid="button-scan-invoice"
           >
             <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
               <ScanLine className="w-5 h-5 text-slate-600 group-hover:text-primary" />
@@ -126,8 +124,7 @@ export default function Home() {
         <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-display font-semibold">{t("home.recent_products")}</h2>
-            <Link href="/assets" className="text-sm text-primary font-medium hover:underline" data-testid="link-viewall-assets">{t("home.view_all")}</Link>
-            <Link href="/dashboard" className="text-sm text-muted-foreground font-medium hover:underline" data-testid="link-open-dashboard">Dashboard</Link>
+            <Link href="/products" className="text-sm text-primary font-medium hover:underline">{t("home.view_all")}</Link>
           </div>
           <div className="space-y-3">
             {recentProducts.map(product => (
