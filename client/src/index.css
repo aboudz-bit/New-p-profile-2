@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+:root {
+  /* Brand — deep institutional indigo (trust, calm, enterprise) */
+  --brand-50: 243 100% 99%;
+  --brand-100: 242 60% 96%;
+  --brand-500: 242 52% 56%;
+  --brand-600: 242 54% 48%;
+  --brand-700: 242 56% 40%;
+
+  --bg: 240 20% 99%;
+  --surface: 0 0% 100%;
+  --border: 240 12% 90%;
+  --muted: 240 6% 45%;
+  --fg: 240 14% 16%;
+
+  --ok: 152 60% 40%;
+  --warn: 38 92% 50%;
+  --danger: 0 72% 51%;
+}
+
+@theme inline {
+  --color-brand-50: hsl(var(--brand-50));
+  --color-brand-100: hsl(var(--brand-100));
+  --color-brand-500: hsl(var(--brand-500));
+  --color-brand-600: hsl(var(--brand-600));
+  --color-brand-700: hsl(var(--brand-700));
+  --color-bg: hsl(var(--bg));
+  --color-surface: hsl(var(--surface));
+  --color-border: hsl(var(--border));
+  --color-muted: hsl(var(--muted));
+  --color-fg: hsl(var(--fg));
+  --color-ok: hsl(var(--ok));
+  --color-warn: hsl(var(--warn));
+  --color-danger: hsl(var(--danger));
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+html { font-family: var(--font-sans); }
+html[lang="ar"], html[lang="ar"] body { font-family: "IBM Plex Sans Arabic", "Inter", sans-serif; }
+
+body {
+  margin: 0;
+  background: hsl(var(--bg));
+  color: hsl(var(--fg));
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Logical-property helpers so the same markup works in LTR and RTL. */
+* { box-sizing: border-box; }
+
+/* thin scrollbars */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 99px; }
